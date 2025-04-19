@@ -5,6 +5,7 @@ import userRouter from "./routes/userRouter.js";
 import productRouter from "./routes/productRouter.js";
 import cartRouter from "./routes/cartRouter.js";
 import orderRouter from "./routes/orderRouter.js";
+import bannerRouter from "./routes/bannerRouter.js";
 import "dotenv/config";
 
 //const cors = require('cors')
@@ -14,7 +15,7 @@ import express from "express";
 const app = express();
 
 //require("dotenv").config();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 connectDB();
 cloudinaryConnect();
@@ -26,10 +27,11 @@ app.use(
   cors({
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "token"],
     credentials: true,
   })
 );
+
 
 //api endpoints
 
@@ -37,6 +39,7 @@ app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/banner", bannerRouter);
 
 /*app.get("/", (req,res) => {
     res.send('Api working')
