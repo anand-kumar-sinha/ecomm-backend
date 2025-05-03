@@ -2,10 +2,10 @@ import productModel from "../models/productModel.js";
 import { v2 as cloudinary } from "cloudinary";
 
 //Add product
-
 const addProduct = async (req, res) => {
   try {
     const {
+      // Extract the request data
       name,
       description,
       price,
@@ -62,7 +62,6 @@ const addProduct = async (req, res) => {
 };
 
 //List product
-
 const listProduct = async (req, res) => {
   try {
     const products = await productModel.find({});
@@ -80,7 +79,6 @@ const listProduct = async (req, res) => {
 };
 
 //Remove product
-
 const removeProduct = async (req, res) => {
   try {
     await productModel.findByIdAndDelete(req.body.id);
