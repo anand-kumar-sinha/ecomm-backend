@@ -11,10 +11,9 @@ import "dotenv/config";
 //const cors = require('cors')
 
 import express from "express";
-//const express =  require('express');
+import categoryRouter from "./routes/categoryRouter.js";
 const app = express();
 
-//require("dotenv").config();
 const PORT = process.env.PORT || 4000;
 
 connectDB();
@@ -34,16 +33,14 @@ app.use(
 
 
 //api endpoints
-
 app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/banner", bannerRouter);
+app.use("/api/category", categoryRouter);
 
-/*app.get("/", (req,res) => {
-    res.send('Api working')
-})*/
+
 
 // Activate
 app.listen(PORT, () => {

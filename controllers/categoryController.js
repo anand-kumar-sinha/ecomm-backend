@@ -39,4 +39,4 @@ const addCategory = async (req, res) => {
 };
 
 
-module.exports = { addCategory };
+export  { addCategory };
