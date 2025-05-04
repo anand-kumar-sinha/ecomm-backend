@@ -10,7 +10,10 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+  fileName: {
+    type: String,
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -22,5 +25,5 @@ const categorySchema = new mongoose.Schema({
 });
 
 const categoryModel =
-  mongoose.models.order || mongoose.model("category", categorySchema);
+  mongoose.models.category || mongoose.model("category", categorySchema);
 export default categoryModel;
