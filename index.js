@@ -12,6 +12,7 @@ import "dotenv/config";
 
 import express from "express";
 import categoryRouter from "./routes/categoryRouter.js";
+import whislistRouter from "./routes/whislistRouter.js";
 const app = express();
 
 const PORT = process.env.PORT || 4000;
@@ -31,7 +32,6 @@ app.use(
   })
 );
 
-
 //api endpoints
 app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
@@ -39,8 +39,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/banner", bannerRouter);
 app.use("/api/category", categoryRouter);
-
-
+app.use("/api/whislist", whislistRouter);
 
 // Activate
 app.listen(PORT, () => {
