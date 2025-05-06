@@ -51,7 +51,7 @@ const removeWhislist = async (req, res) => {
   }
 };
 
-const wishlistFetch = async (req, res) => {
+const fetchWishlist = async (req, res) => {
   try {
     const { userId, page } = req.body;
     if (!userId) {
@@ -93,4 +93,4 @@ const wishlistFetch = async (req, res) => {
   }
 };
 
-export { addWishlist, removeWhislist, wishlistFetch };
+export { addWishlist, removeWhislist, fetchWishlist };
