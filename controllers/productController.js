@@ -62,7 +62,7 @@ const addProduct = async (req, res) => {
 //List product
 const listProduct = async (req, res) => {
   try {
-    const products = await productModel.find({});
+    const products = await productModel.find({}).populate("category");
     res.json({
       success: true,
       products,
