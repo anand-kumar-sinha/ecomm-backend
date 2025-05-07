@@ -42,11 +42,11 @@ const addCategory = async (req, res) => {
 
 const fetchCategory = async (req, res) => {
   try {
-    const category = await categoryModel.find();
+    const category = await categoryModel.find().limit(4);
     if (!category) {
       return res.json({
         success: false,
-        message: "No banner found",
+        message: "No Category found",
       });
     }
 
@@ -90,4 +90,26 @@ const deleteCategory = async (req, res) => {
   }
 };
 
-export  { addCategory, fetchCategory, deleteCategory };
+const fetchCategoryAll = async(req, res) =>{
+  try {
+    const category = await categoryModel.find()
+    if (!category) {
+      return res.json({
+        success: false,
+        message: "No Category found",
+      });
+    }
+
+    res.json({
+      success: true,
+      category,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+export  { addCategory, fetchCategory, deleteCategory, fetchCategoryAll };

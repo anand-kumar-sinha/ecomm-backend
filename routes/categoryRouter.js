@@ -1,5 +1,10 @@
 import express from "express";
-import { addCategory, deleteCategory, fetchCategory } from "../controllers/categoryController.js";
+import {
+  addCategory,
+  deleteCategory,
+  fetchCategory,
+  fetchCategoryAll,
+} from "../controllers/categoryController.js";
 import adminAuth from "../middleware/adminAuth.js";
 import upload from "../middleware/multer.js";
 
@@ -12,7 +17,7 @@ categoryRouter.post(
   addCategory
 );
 categoryRouter.get("/fetch", fetchCategory);
-categoryRouter.post("/delete",adminAuth, deleteCategory);
-
+categoryRouter.get("/fetch/all", fetchCategoryAll);
+categoryRouter.post("/delete", adminAuth, deleteCategory);
 
 export default categoryRouter;
