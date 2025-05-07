@@ -10,7 +10,7 @@ addressRouter.post(
   addAddress
 );
 
-addressRouter.get("/fetch", fetchAddreses);
+addressRouter.get("/fetch",authUser, fetchAddreses);
 // addressRouter.post("/delete",adminAuth, deleteBanner);
 
 export default addressRouter;
