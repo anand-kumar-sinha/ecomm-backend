@@ -13,6 +13,7 @@ import "dotenv/config";
 import express from "express";
 import categoryRouter from "./routes/categoryRouter.js";
 import whislistRouter from "./routes/whislistRouter.js";
+import addressRouter from "./routes/addressRouter.js";
 const app = express();
 
 const PORT = process.env.PORT || 4000;
@@ -40,6 +41,7 @@ app.use("/api/order", orderRouter);
 app.use("/api/banner", bannerRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/whislist", whislistRouter);
+app.use("/api/address", addressRouter);
 
 // Activate
 app.listen(PORT, () => {
