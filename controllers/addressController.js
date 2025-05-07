@@ -60,6 +60,40 @@ const addAddress = async (req, res) => {
   }
 };
 
+const fetchAddreses = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "userId is required",
+      });
+    }
+
+    const user = await userModel
+      .findById(userId)
+      .select("address")
+      .populate("address");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Address fetched successfully",
+      address: user.address,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Server Error",
+    });
+  }
+};
+
 const updateAdderss = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -139,4 +173,4 @@ const deleteAddress = async (req, res) => {
   }
 };
 
-export { addAddress, updateAdderss, deleteAddress };
+export { addAddress, updateAdderss, deleteAddress, fetchAddreses };
