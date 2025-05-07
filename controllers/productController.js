@@ -62,7 +62,10 @@ const addProduct = async (req, res) => {
 //List product
 const listProduct = async (req, res) => {
   try {
-    const products = await productModel.find({}).populate({path: "category", select: "categoryName"}).populate({path: "subCategory", select: "categoryName"});
+    const products = await productModel
+      .find({})
+      .populate({ path: "category", select: "categoryName" })
+      .populate({ path: "subCategory", select: "categoryName" });
     res.json({
       success: true,
       products,
@@ -94,7 +97,6 @@ const removeProduct = async (req, res) => {
 };
 
 //Single product info
-
 const singleProduct = async (req, res) => {
   try {
     const { productId } = req.body;

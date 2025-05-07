@@ -159,7 +159,6 @@ const myProfile = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       success: false,
       message: error.message || "Server Error",
