@@ -3,14 +3,27 @@ import userModel from "../models/userModel.js";
 const addWishlist = async (req, res) => {
   try {
     const { userId, productId } = req.body;
-    const userData = await userModel.findById(userId).select("wishlist");
+    if(!userId){
+        return res.status(404).json({
+            success:false,
+            message:"User not found"
+        })
+    }
+    if(!productId){
+        return res.status(404).json({
+            success:false,
+            message:"Product not found"
+        })
+    }
+    const userData = await userModel.findById(userId).select("whislist");
     if (!userData) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
-    userData.wishlist.push(productId);
+
+    userData.whislist.unshift(productId);
     await userData.save();
     res.json({
       success: true,
@@ -27,7 +40,7 @@ const addWishlist = async (req, res) => {
 const removeWhislist = async (req, res) => {
   try {
     const { userId, productId } = req.body;
-    const userData = await userModel.findById(userId).select("wishlist");
+    const userData = await userModel.findById(userId).select("whislist");
     if (!userData) {
       return res.status(404).json({
         success: false,
@@ -68,7 +81,7 @@ const fetchWishlist = async (req, res) => {
       .findById(userId)
       .select("wishlist")
       .populate({
-        path: "wishlist",
+        path: "whislist",
         options: {
           skip: (parseInt(page) - 1) * total,
           limit: total,
@@ -83,7 +96,7 @@ const fetchWishlist = async (req, res) => {
 
     res.json({
       success: true,
-      wishlist: userData.wishlist,
+      whislist: userData.whislist,
     });
   } catch (error) {
     res.json({

@@ -19,12 +19,13 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   category: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "category",
     required: true,
   },
   subCategory: {
-    type: String,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "category",
   },
   sizes: {
     type: Array,
@@ -34,9 +35,19 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
-  date: {
-    type: Number,
-    required: true,
+  reviews:[
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "review",
+    }
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 
