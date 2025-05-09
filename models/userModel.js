@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema(
         ref: "address",
       }
     ],
+    defaultAddress: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "address",
+    },
     cartData: {
       type: Object,
       default: {},

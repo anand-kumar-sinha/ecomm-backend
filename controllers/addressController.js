@@ -173,4 +173,46 @@ const deleteAddress = async (req, res) => {
   }
 };
 
-export { addAddress, updateAdderss, deleteAddress, fetchAddreses };
+const defaultAddress = async (req, res) => {
+  try {
+    const { userId, addressId } = req.body;
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "userId is required",
+      });
+    }
+
+    if (!addressId) {
+      return res.status(400).json({
+        success: false,
+        message: "addressId is required",
+      });
+    }
+
+    const address = await addressModel.findById(addressId);
+    if (!address) {
+      return res.status(404).json({
+        success: false,
+        message: "Address not found",
+      });
+    }
+
+    address.default = true;
+    await address.save();
+
+    await userModel.findByIdAndUpdate(userId, { defaultAddress: address._id });
+    return res.status(200).json({
+      success: true,
+      message: "Address set as default successfully",
+      address,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Server Error",
+    });
+  }
+};
+
+export { addAddress, updateAdderss, deleteAddress, fetchAddreses, defaultAddress };
