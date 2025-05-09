@@ -144,7 +144,10 @@ const myProfile = async (req, res) => {
       });
     }
 
-    const user = await userModel.findById(userId).select("-password");
+    const user = await userModel
+      .findById(userId)
+      .select("-password")
+      .populate("defaultAddress");
 
     if (!user) {
       return res.status(404).json({
@@ -166,4 +169,23 @@ const myProfile = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser, adminUser, myProfile };
+const fetchUserAll = async (req, res) =>{
+  try {
+    const users = await userModel.find({}).select("name email defaultAddress").populate({
+      path: "defaultAddress",
+      select: "state city mobileNumber",
+    });
+    return res.status(200).json({
+      success: true,
+      message: "User profile fetched successfully",
+      users: users,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Server Error",
+    });
+  }
+}
+
+export { loginUser, registerUser, adminUser, myProfile, fetchUserAll };
