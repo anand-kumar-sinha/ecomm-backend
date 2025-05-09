@@ -158,6 +158,13 @@ const deleteAddress = async (req, res) => {
 
     const user = await userModel.findById(userId);
     user.address.pull(addressId);
+    if (
+      user.defaultAddress &&
+      user?.defaultAddress?.toString() == addressId.toString()
+    ) {
+      user.defaultAddress = null;
+    }
+
     await user.save();
 
     return res.status(200).json({
@@ -201,7 +208,19 @@ const defaultAddress = async (req, res) => {
     address.default = true;
     await address.save();
 
-    await userModel.findByIdAndUpdate(userId, { defaultAddress: address._id });
+    const user = await userModel.findById(userId).select("defaultAddress");
+
+    if (user.defaultAddress) {
+      const defaultAddress = await addressModel.findById(
+        user.defaultAddress._id
+      );
+      defaultAddress.default = false;
+      await defaultAddress.save();
+    }
+
+    user.defaultAddress = address._id;
+    await user.save();
+
     return res.status(200).json({
       success: true,
       message: "Address set as default successfully",
@@ -215,4 +234,10 @@ const defaultAddress = async (req, res) => {
   }
 };
 
-export { addAddress, updateAdderss, deleteAddress, fetchAddreses, defaultAddress };
+export {
+  addAddress,
+  updateAdderss,
+  deleteAddress,
+  fetchAddreses,
+  defaultAddress,
+};
