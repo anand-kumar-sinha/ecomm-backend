@@ -96,8 +96,7 @@ const fetchAddreses = async (req, res) => {
 
 const updateAdderss = async (req, res) => {
   try {
-    const { userId } = req.body;
-    const data = req.body;
+    const  { _id, userId, ...updateFields  } = req.body;
     if (!userId) {
       return res.status(400).json({
         success: false,
@@ -106,8 +105,8 @@ const updateAdderss = async (req, res) => {
     }
 
     const address = await addressModel.findByIdAndUpdate(
-      data._id,
-      { $set: data },
+      _id,
+      { $set: updateFields },
       { new: true, runValidators: true }
     );
 
