@@ -47,14 +47,14 @@ const removeWhislist = async (req, res) => {
         message: "User not found",
       });
     }
-    const wishlist = userData.wishlist.filter(
+    const whislist = userData.whislist.filter(
       (id) => id.toString() !== productId
     );
-    userData.wishlist = wishlist;
+    userData.whislist = whislist;
     await userData.save();
     res.json({
       success: true,
-      message: "Product removed from wishlist",
+      message: "Product removed from whislist",
     });
   } catch (error) {
     res.json({
