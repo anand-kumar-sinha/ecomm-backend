@@ -35,11 +35,11 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
-  reviews:[
+  reviews: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "review",
-    }
+    },
   ],
   createdAt: {
     type: Date,

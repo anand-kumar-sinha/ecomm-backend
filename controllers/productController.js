@@ -107,12 +107,43 @@ const singleProduct = async (req, res) => {
       product,
     });
   } catch (error) {
-    console.log(error),
-      res.json({
-        success: false,
-        message: error.message,
-      });
+    res.json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
-export { listProduct, addProduct, singleProduct, removeProduct };
+const fetchProductByCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    if (!categoryId) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found",
+      });
+    }
+    const products = await productModel.find({
+      $or: [{ category: categoryId }, { subCategory: categoryId }],
+    });
+    if(!products){
+      return res.status(404).json({
+        success: false,
+        message: "No Product found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Products fetched successfully",
+      products,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export { listProduct, addProduct, singleProduct, removeProduct, fetchProductByCategory };
