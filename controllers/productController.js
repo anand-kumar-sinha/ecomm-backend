@@ -126,7 +126,7 @@ const fetchProductByCategory = async (req, res) => {
     const products = await productModel.find({
       $or: [{ category: categoryId }, { subCategory: categoryId }],
     });
-    if(!products){
+    if (!products) {
       return res.status(404).json({
         success: false,
         message: "No Product found",
@@ -146,4 +146,93 @@ const fetchProductByCategory = async (req, res) => {
   }
 };
 
-export { listProduct, addProduct, singleProduct, removeProduct, fetchProductByCategory };
+const searchProduct = async (req, res) => {
+  try {
+    const { key } = req.query;
+
+    // Validate that key exists and is a string
+    if (!key || typeof key !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Search key must be a valid string",
+      });
+    }
+
+    const products = await productModel.aggregate([
+      {
+        $lookup: {
+          from: "categories", // Make sure this matches your actual collection name
+          localField: "category",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "categories", // Using same collection as subCategory refers to category
+          localField: "subCategory",
+          foreignField: "_id",
+          as: "subCategoryDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$categoryDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: "$subCategoryDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { name: { $regex: key, $options: "i" } },
+            { description: { $regex: key, $options: "i" } },
+            {
+              "categoryDetails.categoryName": { $regex: key, $options: "i" },
+            }, // Try both
+            {
+              "subCategoryDetails.categoryName": {
+                $regex: key,
+                $options: "i",
+              },
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          price: 1,
+          image: 1,
+          bestSeller: 1,
+        },
+      },
+    ]);
+
+    res.json({
+      success: true,
+      message: "Products fetched successfully",
+      products,
+    });
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export {
+  listProduct,
+  addProduct,
+  singleProduct,
+  removeProduct,
+  fetchProductByCategory,
+  searchProduct,
+};
