@@ -66,40 +66,51 @@ const removeWhislist = async (req, res) => {
 
 const fetchWishlist = async (req, res) => {
   try {
-    const { userId, page } = req.body;
+    const { userId } = req.body;
+    let page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
     if (!userId) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
-    if (!page) {
-      page = 1;
+
+    // First fetch only the wishlist array length for pagination
+    const userForCount = await userModel.findById(userId).select("wishlist");
+    if (!userForCount) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
-    const total = 10;
+
+    const totalWishlistItems = userForCount.wishlist.length;
+    const totalPages = Math.ceil(totalWishlistItems / limit);
+
+    // Now fetch the paginated wishlist items
     const userData = await userModel
       .findById(userId)
       .select("wishlist")
       .populate({
-        path: "whislist",
+        path: "wishlist",
         options: {
-          skip: (parseInt(page) - 1) * total,
-          limit: total,
+          skip,
+          limit,
         },
       });
 
-    if (!userData) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
-    }
-
     res.json({
       success: true,
-      whislist: userData.whislist,
+      message: "Wishlist fetched successfully",
+      wishlist: userData.wishlist,
+      currentPage: page,
+      totalPages,
     });
   } catch (error) {
-    res.json({
+    res.status(500).json({
       success: false,
       message: error.message,
     });

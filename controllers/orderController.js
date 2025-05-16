@@ -220,38 +220,74 @@ const verifyRazorpay = async (req, res) => {
 
 const allOrders = async (req, res) => {
   try {
-    const orders = await orderModel.find({});
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const [orders, totalOrders] = await Promise.all([
+      orderModel.find({}).skip(skip).limit(limit),
+      orderModel.countDocuments(),
+    ]);
+
     res.json({
       success: true,
       orders,
+      currentPage: page,
+      totalPages: Math.ceil(totalOrders / limit),
     });
   } catch (error) {
     console.log(error);
-    res.json({
+    res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
+
 
 //User Order Data for frontend
 
 const userOrders = async (req, res) => {
   try {
     const { userId } = req.body;
-    const orders = await orderModel.find({ userId });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const [orders, totalOrders] = await Promise.all([
+      orderModel.find({ userId }).skip(skip).limit(limit),
+      orderModel.countDocuments({ userId }),
+    ]);
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No orders found for this user",
+      });
+    }
+
     res.json({
       success: true,
       orders,
+      currentPage: page,
+      totalPages: Math.ceil(totalOrders / limit),
     });
   } catch (error) {
     console.log(error);
-    res.json({
+    res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
+
 //update order status from Admin Panel
 
 const updateStatus = async (req, res) => {

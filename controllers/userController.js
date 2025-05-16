@@ -169,16 +169,31 @@ const myProfile = async (req, res) => {
   }
 };
 
-const fetchUserAll = async (req, res) =>{
+const fetchUserAll = async (req, res) => {
   try {
-    const users = await userModel.find({}).select("name email defaultAddress").populate({
-      path: "defaultAddress",
-      select: "state city mobileNumber",
-    });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const [users, totalUsers] = await Promise.all([
+      userModel
+        .find({})
+        .select("name email defaultAddress")
+        .populate({
+          path: "defaultAddress",
+          select: "state city mobileNumber",
+        })
+        .skip(skip)
+        .limit(limit),
+      userModel.countDocuments(),
+    ]);
+
     return res.status(200).json({
       success: true,
-      message: "User profile fetched successfully",
-      users: users,
+      message: "User profiles fetched successfully",
+      users,
+      currentPage: page,
+      totalPages: Math.ceil(totalUsers / limit),
     });
   } catch (error) {
     return res.status(500).json({
@@ -186,6 +201,7 @@ const fetchUserAll = async (req, res) =>{
       message: error.message || "Server Error",
     });
   }
-}
+};
+
 
 export { loginUser, registerUser, adminUser, myProfile, fetchUserAll };
