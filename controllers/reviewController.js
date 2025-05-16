@@ -3,7 +3,8 @@ import userModel from "../models/userModel.js";
 
 const addReview = async (req, res) => {
   try {
-    const { title, description, rating, productId, userId } = req.body;
+    const { title, comment, rating, userId, variant, user, location } = req.body;
+    const { productId } = req.params;
     if (!userId) {
       return res.status(404).json({
         success: false,
@@ -11,22 +12,24 @@ const addReview = async (req, res) => {
       });
     }
 
-    if (!title || !description || !rating || !productId) {
+    if (!title || !comment || !rating || !productId || !variant || !user) {
       return res.status(404).json({
         success: false,
         message: "All fields are required",
       });
     }
 
-    const user = await userModel.findById(userId).select("orders");
-    if (!user) {
+    const exsistinguser = await userModel.findById(userId).select("orders");
+    if (!exsistinguser) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
 
-    const hasProduct = user.orders.some((order) =>
+    console.log(exsistinguser)
+
+    const hasProduct = exsistinguser.orders.some((order) =>
       order.items?.some((item) => item.productId.toString() === productId)
     );
 
@@ -39,10 +42,13 @@ const addReview = async (req, res) => {
 
     const review = await reviewModel.create({
       title,
-      description,
+      description: comment,
       rating,
       user: userId,
       product: productId,
+      userName: user,
+      productName: variant,
+      city: location,
     });
 
     if (!review) {
@@ -65,6 +71,5 @@ const addReview = async (req, res) => {
     });
   }
 };
-
 
 export { addReview };

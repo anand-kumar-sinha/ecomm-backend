@@ -20,9 +20,18 @@ const reviewSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "product",
   },
+  userName: {
+    type: String,
+  },
+  productName: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  city:{
+    type:String
   },
   updatedAt: {
     type: Date,
