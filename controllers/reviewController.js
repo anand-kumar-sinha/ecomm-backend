@@ -1,9 +1,11 @@
+import productModel from "../models/productModel.js";
 import reviewModel from "../models/reviewModel.js";
 import userModel from "../models/userModel.js";
 
 const addReview = async (req, res) => {
   try {
-    const { title, comment, rating, userId, variant, user, location } = req.body;
+    const { title, comment, rating, userId, variant, user, location } =
+      req.body;
     const { productId } = req.params;
     if (!userId) {
       return res.status(404).json({
@@ -19,11 +21,24 @@ const addReview = async (req, res) => {
       });
     }
 
-    const exsistinguser = await userModel.findById(userId).select("orders").populate("orders");
+    const exsistinguser = await userModel
+      .findById(userId)
+      .select("orders")
+      .populate("orders");
     if (!exsistinguser) {
       return res.status(404).json({
         success: false,
         message: "User not found",
+      });
+    }
+
+    const exsistingProduct = await productModel
+      .findById(productId)
+      .select("reviews");
+    if (!exsistingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
       });
     }
 
@@ -55,8 +70,11 @@ const addReview = async (req, res) => {
         message: "Someting went wrong",
       });
     }
-
     await review.save();
+
+    exsistingProduct.reviews.unshift(review._id);
+    await exsistingProduct.save();
+
     res.json({
       success: true,
       message: "Review added successfully",
@@ -70,4 +88,27 @@ const addReview = async (req, res) => {
   }
 };
 
-export { addReview };
+const getReviews = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const reviews = await reviewModel.find({ product: productId });
+    if (!reviews) {
+      return res.status(404).json({
+        success: false,
+        message: "No reviews found",
+      });
+    }
+    res.json({
+      success: true,
+      message: "Reviews fetched successfully",
+      reviews,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export { addReview, getReviews };
