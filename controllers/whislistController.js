@@ -106,4 +106,5 @@ const fetchWishlist = async (req, res) => {
   }
 };
 
+
 export { addWishlist, removeWhislist, fetchWishlist };

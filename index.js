@@ -14,6 +14,7 @@ import express from "express";
 import categoryRouter from "./routes/categoryRouter.js";
 import whislistRouter from "./routes/whislistRouter.js";
 import addressRouter from "./routes/addressRouter.js";
+import reviewRouter from "./routes/reviewRouter.js";
 const app = express();
 
 const PORT = process.env.PORT || 4000;
@@ -42,6 +43,7 @@ app.use("/api/banner", bannerRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/whislist", whislistRouter);
 app.use("/api/address", addressRouter);
+app.use("/api/review", reviewRouter);
 
 // Activate
 app.listen(PORT, () => {
