@@ -19,15 +19,13 @@ const addReview = async (req, res) => {
       });
     }
 
-    const exsistinguser = await userModel.findById(userId).select("orders");
+    const exsistinguser = await userModel.findById(userId).select("orders").populate("orders");
     if (!exsistinguser) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
-
-    console.log(exsistinguser)
 
     const hasProduct = exsistinguser.orders.some((order) =>
       order.items?.some((item) => item.productId.toString() === productId)
