@@ -60,7 +60,7 @@ const addProduct = async (req, res) => {
 };
 
 //List product
-const listProduct = async (req, res) => {
+const listProductBestSeller = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
@@ -68,7 +68,7 @@ const listProduct = async (req, res) => {
 
     const [products, totalProducts] = await Promise.all([
       productModel
-        .find({})
+        .find({bestSeller: true})
         .populate({ path: "category", select: "categoryName" })
         .populate({ path: "subCategory", select: "categoryName" })
         .skip(skip)
@@ -90,7 +90,6 @@ const listProduct = async (req, res) => {
     });
   }
 };
-
 
 //Remove product
 const removeProduct = async (req, res) => {
@@ -171,7 +170,6 @@ const fetchProductByCategory = async (req, res) => {
     });
   }
 };
-
 
 const searchProduct = async (req, res) => {
   try {
@@ -255,11 +253,43 @@ const searchProduct = async (req, res) => {
   }
 };
 
+const listProduct= async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const [products, totalProducts] = await Promise.all([
+      productModel
+        .find({})
+        .populate({ path: "category", select: "categoryName" })
+        .populate({ path: "subCategory", select: "categoryName" })
+        .skip(skip)
+        .limit(limit),
+      productModel.countDocuments(),
+    ]);
+
+    res.json({
+      success: true,
+      products,
+      currentPage: page,
+      totalPages: Math.ceil(totalProducts / limit),
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export {
-  listProduct,
+  listProductBestSeller,
   addProduct,
   singleProduct,
   removeProduct,
   fetchProductByCategory,
   searchProduct,
+  listProduct
 };

@@ -1,5 +1,5 @@
 import express from 'express';
-import { addProduct , removeProduct , listProduct , singleProduct, fetchProductByCategory, searchProduct } from '../controllers/productController.js';
+import { addProduct , removeProduct , listProductBestSeller , singleProduct, fetchProductByCategory, searchProduct, listProduct } from '../controllers/productController.js';
 import upload from '../middleware/multer.js'
 import adminAuth from '../middleware/adminAuth.js';
 
@@ -9,6 +9,7 @@ const productRouter = express.Router();
 productRouter.post('/add',adminAuth,upload.fields([{name:'image1',maxCount:1},{name:'image2',maxCount:1},{name:'image3',maxCount:1},{name:'image4',maxCount:1}]) ,   addProduct);
 productRouter.post('/remove',adminAuth,removeProduct);
 productRouter.post('/single',singleProduct);
+productRouter.get('/list/best-seller',listProductBestSeller);
 productRouter.get('/list',listProduct);
 productRouter.get('/category/:categoryId',fetchProductByCategory);
 productRouter.get('/search',searchProduct);

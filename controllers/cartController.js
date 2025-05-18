@@ -1,3 +1,4 @@
+
 import userModel from "../models/userModel.js";
 
 //Add products to user cart
@@ -60,37 +61,21 @@ const updateCart = async (req, res) => {
 const getUserCart = async (req, res) => {
   try {
     const { userId } = req.body;
-    const page = parseInt(req.query.page) || 1;
-    const limit = 10;
 
     const userData = await userModel.findById(userId);
-    if (!userData) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    const cartData = userData.cartData || [];
-    const totalItems = cartData.length;
-    const totalPages = Math.ceil(totalItems / limit);
-
-    const paginatedCart = cartData.slice((page - 1) * limit, page * limit);
+    let cartData = await userData.cartData;
 
     res.json({
       success: true,
-      cartData: paginatedCart,
-      currentPage: page,
-      totalPages,
+      cartData,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    res.json({
       success: false,
       message: error.message,
     });
   }
 };
-
 
 export { addToCart, updateCart, getUserCart };
