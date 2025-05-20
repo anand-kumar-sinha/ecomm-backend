@@ -23,6 +23,13 @@ const addWishlist = async (req, res) => {
       });
     }
 
+    if (userData.whislist.includes(productId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Product already added to wishlist",
+      });
+    }
+
     userData.whislist.unshift(productId);
     await userData.save();
     res.json({
@@ -79,7 +86,7 @@ const fetchWishlist = async (req, res) => {
     }
 
     // First fetch only the wishlist array length for pagination
-    const userForCount = await userModel.findById(userId).select("wishlist");
+    const userForCount = await userModel.findById(userId).select("whislist");
     if (!userForCount) {
       return res.status(404).json({
         success: false,
@@ -87,15 +94,15 @@ const fetchWishlist = async (req, res) => {
       });
     }
 
-    const totalWishlistItems = userForCount.wishlist.length;
+    const totalWishlistItems = userForCount.whislist.length;
     const totalPages = Math.ceil(totalWishlistItems / limit);
 
     // Now fetch the paginated wishlist items
     const userData = await userModel
       .findById(userId)
-      .select("wishlist")
+      .select("whislist")
       .populate({
-        path: "wishlist",
+        path: "whislist",
         options: {
           skip,
           limit,
@@ -105,7 +112,7 @@ const fetchWishlist = async (req, res) => {
     res.json({
       success: true,
       message: "Wishlist fetched successfully",
-      wishlist: userData.wishlist,
+      wishlist: userData.whislist,
       currentPage: page,
       totalPages,
     });

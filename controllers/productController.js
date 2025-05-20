@@ -68,7 +68,7 @@ const listProductBestSeller = async (req, res) => {
 
     const [products, totalProducts] = await Promise.all([
       productModel
-        .find({bestSeller: true})
+        .find({ bestSeller: true })
         .populate({ path: "category", select: "categoryName" })
         .populate({ path: "subCategory", select: "categoryName" })
         .skip(skip)
@@ -173,9 +173,9 @@ const fetchProductByCategory = async (req, res) => {
 
 const searchProduct = async (req, res) => {
   try {
-    const { key } = req.query;
+    const { key, page } = req.query;
 
-    // Validate that key exists and is a string
+    // Validate key
     if (!key || typeof key !== "string") {
       return res.status(400).json({
         success: false,
@@ -183,10 +183,14 @@ const searchProduct = async (req, res) => {
       });
     }
 
+    const pageNumber = parseInt(page) || 1;
+    const limit = 6;
+    const skip = (pageNumber - 1) * limit;
+
     const products = await productModel.aggregate([
       {
         $lookup: {
-          from: "categories", // Make sure this matches your actual collection name
+          from: "categories",
           localField: "category",
           foreignField: "_id",
           as: "categoryDetails",
@@ -194,7 +198,7 @@ const searchProduct = async (req, res) => {
       },
       {
         $lookup: {
-          from: "categories", // Using same collection as subCategory refers to category
+          from: "categories",
           localField: "subCategory",
           foreignField: "_id",
           as: "subCategoryDetails",
@@ -217,15 +221,8 @@ const searchProduct = async (req, res) => {
           $or: [
             { name: { $regex: key, $options: "i" } },
             { description: { $regex: key, $options: "i" } },
-            {
-              "categoryDetails.categoryName": { $regex: key, $options: "i" },
-            }, // Try both
-            {
-              "subCategoryDetails.categoryName": {
-                $regex: key,
-                $options: "i",
-              },
-            },
+            { "categoryDetails.categoryName": { $regex: key, $options: "i" } },
+            { "subCategoryDetails.categoryName": { $regex: key, $options: "i" } },
           ],
         },
       },
@@ -235,13 +232,66 @@ const searchProduct = async (req, res) => {
           price: 1,
           image: 1,
           bestSeller: 1,
+          categoryDetails: 1,
         },
       },
+      { $skip: skip },
+      { $limit: limit },
     ]);
+
+    // Count total documents matching the search (without pagination)
+    const totalCountAgg = await productModel.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "subCategory",
+          foreignField: "_id",
+          as: "subCategoryDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$categoryDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: "$subCategoryDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { name: { $regex: key, $options: "i" } },
+            { description: { $regex: key, $options: "i" } },
+            { "categoryDetails.categoryName": { $regex: key, $options: "i" } },
+            { "subCategoryDetails.categoryName": { $regex: key, $options: "i" } },
+          ],
+        },
+      },
+      {
+        $count: "totalCount",
+      },
+    ]);
+
+    const totalCount = totalCountAgg[0]?.totalCount || 0;
 
     res.json({
       success: true,
       message: "Products fetched successfully",
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalCount / limit),
+      totalResults: totalCount,
       products,
     });
   } catch (error) {
@@ -253,10 +303,11 @@ const searchProduct = async (req, res) => {
   }
 };
 
-const listProduct= async (req, res) => {
+
+const listProduct = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 10;
+    const limit = 12;
     const skip = (page - 1) * limit;
 
     const [products, totalProducts] = await Promise.all([
@@ -291,5 +342,5 @@ export {
   removeProduct,
   fetchProductByCategory,
   searchProduct,
-  listProduct
+  listProduct,
 };
