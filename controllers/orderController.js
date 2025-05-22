@@ -2,6 +2,7 @@ import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import Stripe from "stripe";
 import razorpay from "razorpay";
+import { createNotification } from "../middleware/createNotification.js";
 
 //global veriables
 const currency = "usd";
@@ -40,8 +41,16 @@ const placeOrder = async (req, res) => {
       });
     }
 
-    const user = await userModel.findById(userId).select("orders cartData");
+    const user = await userModel
+      .findById(userId)
+      .select("orders cartData notifications");
 
+    await createNotification({
+      title: "Order Placed",
+      body: "Your order has been placed",
+      user: user,
+      type: "Order Placed",
+    });
     user.cartData = {};
     user.orders.push(newOrder._id);
     await user.save();
@@ -244,7 +253,6 @@ const allOrders = async (req, res) => {
   }
 };
 
-
 //User Order Data for frontend
 
 const userOrders = async (req, res) => {
@@ -261,17 +269,28 @@ const userOrders = async (req, res) => {
       });
     }
 
-    const [orders, totalOrders] = await Promise.all([
-      orderModel.find({ userId }).skip(skip).limit(limit),
-      orderModel.countDocuments({ userId }),
-    ]);
+    // Get user's orders array
+    const user = await userModel.findById(userId).select("orders");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
-    if (!orders || orders.length === 0) {
+    const totalOrders = user.orders.length;
+    if (totalOrders === 0) {
       return res.status(404).json({
         success: false,
         message: "No orders found for this user",
       });
     }
+
+    // Slice order IDs based on pagination
+    const paginatedOrderIds = user.orders.slice(skip, skip + limit);
+
+    // Fetch full order details
+    const orders = await orderModel.find({ _id: { $in: paginatedOrderIds } }).populate({path: "items.productId", select: "image"});
 
     res.json({
       success: true,
@@ -279,8 +298,9 @@ const userOrders = async (req, res) => {
       currentPage: page,
       totalPages: Math.ceil(totalOrders / limit),
     });
+
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -288,20 +308,46 @@ const userOrders = async (req, res) => {
   }
 };
 
+
 //update order status from Admin Panel
 
 const updateStatus = async (req, res) => {
   try {
     const { orderId, status } = req.body;
-    await orderModel.findByIdAndUpdate(orderId, { status });
+
+    const order = await orderModel.findByIdAndUpdate(orderId, {
+      $set: { status },
+    });
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    const user = await userModel.findById(order.user).select("notifications");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    await createNotification({
+      title: "Order Status Updated",
+      body: `Your order status has been updated to ${status}`,
+      user,
+      type: status,
+    });
 
     res.json({
       success: true,
       message: "Status Updated",
     });
   } catch (error) {
-    console.log(error);
-    res.json({
+    console.error(error);
+    res.status(500).json({
       success: false,
       message: error.message,
     });

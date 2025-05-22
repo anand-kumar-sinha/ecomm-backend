@@ -31,7 +31,13 @@ const userSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "address",
-      }
+      },
+    ],
+    notifications: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "notification",
+      },
     ],
     defaultAddress: {
       type: mongoose.Schema.Types.ObjectId,
