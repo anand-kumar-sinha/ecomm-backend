@@ -69,7 +69,6 @@ const placeOrder = async (req, res) => {
 };
 
 // Placing Order Using Stripe Method
-
 const placeOrderStripe = async (req, res) => {
   try {
     const { userId, items, amount, address } = req.body;
@@ -154,7 +153,6 @@ const verifyStripe = async (req, res) => {
 };
 
 // Placing Order Using RajorPay Method
-
 const placeOrderRazorpay = async (req, res) => {
   try {
     const { userId, items, amount, address } = req.body;
@@ -226,7 +224,6 @@ const verifyRazorpay = async (req, res) => {
 };
 
 //All orders data for admin panel
-
 const allOrders = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -254,7 +251,6 @@ const allOrders = async (req, res) => {
 };
 
 //User Order Data for frontend
-
 const userOrders = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -308,9 +304,7 @@ const userOrders = async (req, res) => {
   }
 };
 
-
 //update order status from Admin Panel
-
 const updateStatus = async (req, res) => {
   try {
     const { orderId, status } = req.body;
@@ -354,6 +348,34 @@ const updateStatus = async (req, res) => {
   }
 };
 
+const trackOrder = async (req, res) =>{
+  try {
+    const { orderId } = req.body;
+    if(!orderId){
+      return res.status(400).json({
+        success: false,
+        message: "Order ID is required"
+      })
+    }
+    const order = await orderModel.findById(orderId);
+    if(!order){
+      return res.status(404).json({
+        success: false,
+        message: "Order not found"
+      })
+    }
+    res.json({
+      success: true,
+      order
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}
+
 export {
   verifyStripe,
   verifyRazorpay,
@@ -363,4 +385,5 @@ export {
   allOrders,
   userOrders,
   updateStatus,
+  trackOrder
 };
