@@ -6,10 +6,10 @@ import upload from "../middleware/multer.js";
 
 const sellerRouter = express.Router();
 
-sellerRouter.post("/signup", signUpSeller);
+sellerRouter.post("/register", signUpSeller);
 sellerRouter.post("/login", loginSeller);
 sellerRouter.post(
-  "/add",
+  "/product/add",
   authSeller,
   upload.fields([
     { name: "image1", maxCount: 1 },

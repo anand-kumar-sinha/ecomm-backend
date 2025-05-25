@@ -1,25 +1,22 @@
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 
+const authSeller = async (req, res, next) => {
+  const { token } = req.headers;
 
-const authSeller = async (req,res,next) => {
+  if (!token) {
+    return res.json({ success: false, message: "Not Authorized Login Again" });
+  }
 
-    const { token } = req.headers;
+  try {
+    const token_decode = jwt.verify(token, process.env.JWT_SECRET);
+    req.sellerId = token_decode.id;
+    next();
+  } catch (error) {
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
-    if(!token) {
-        return res.json({success:false,message:'Not Authorized Login Again'});
-    }
-
-    try{
-        const token_decode = jwt.verify(token , process.env.JWT_SECRET)
-        req.body.userId = token_decode.id
-        next()
-    } 
-    catch(error){
-         res.json({
-            success:false,
-            message:error.message
-        })
-    }
-}
-
-export default authSeller
+export default authSeller;
