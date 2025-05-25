@@ -1,5 +1,6 @@
 import productModel from "../models/productModel.js";
 import { v2 as cloudinary } from "cloudinary";
+import sellerModel from "../models/sellerModel.js";
 
 //Add product
 const addProduct = async (req, res) => {
@@ -13,6 +14,7 @@ const addProduct = async (req, res) => {
       subCategory,
       sizes,
       bestSeller,
+      sellerId
     } = req.body;
 
     const image1 = req.files.image1 && req.files.image1[0];
@@ -44,8 +46,18 @@ const addProduct = async (req, res) => {
       date: Date.now(),
     };
 
+    if(sellerId){
+      productData.addedBy = sellerId
+    }
+
     const product = new productModel(productData);
     await product.save();
+
+    if(sellerId){
+      const seller = await sellerModel.findById(sellerId).select("products");
+      seller.products.unshift(product._id);
+      await seller.save();
+    }
 
     res.send({
       success: true,
@@ -302,7 +314,6 @@ const searchProduct = async (req, res) => {
     });
   }
 };
-
 
 const listProduct = async (req, res) => {
   try {
