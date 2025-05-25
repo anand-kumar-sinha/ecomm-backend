@@ -98,4 +98,36 @@ const loginSeller = async (req, res) => {
   }
 };
 
-export { signUpSeller, loginSeller };
+const fetchSellerProduct = async (req, res) => {
+  try {
+    const sellerId = req.sellerId;
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+    const seller = await sellerModel
+      .findById(sellerId)
+      .select("products")
+      .populate({
+        path: "products",
+        populate: {
+          path: "category subCategory",
+          select: "categoryName",
+        },
+      });
+
+    res.status(200).json({
+      success: true,
+      products: seller.products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export { signUpSeller, loginSeller, fetchSellerProduct };

@@ -1,4 +1,4 @@
-import { loginSeller, signUpSeller } from "../controllers/sellerController.js";
+import { fetchSellerProduct, loginSeller, signUpSeller } from "../controllers/sellerController.js";
 import express from "express";
 import authSeller from "../middleware/sellerAuth.js";
 import { addProduct } from "../controllers/productController.js";
@@ -8,6 +8,7 @@ const sellerRouter = express.Router();
 
 sellerRouter.post("/register", signUpSeller);
 sellerRouter.post("/login", loginSeller);
+sellerRouter.get("/product/list", authSeller, fetchSellerProduct);
 sellerRouter.post(
   "/product/add",
   authSeller,
