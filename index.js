@@ -16,6 +16,7 @@ import whislistRouter from "./routes/whislistRouter.js";
 import addressRouter from "./routes/addressRouter.js";
 import reviewRouter from "./routes/reviewRouter.js";
 import notificationRouter from "./routes/notificationRouter.js";
+import sellerRouter from "./routes/sellerRouter.js";
 const app = express();
 
 const PORT = process.env.PORT || 4000;
@@ -46,6 +47,7 @@ app.use("/api/whislist", whislistRouter);
 app.use("/api/address", addressRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/notifications", notificationRouter);
+app.use("/api/seller", sellerRouter);
 
 // Activate
 app.listen(PORT, () => {

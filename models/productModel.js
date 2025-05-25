@@ -40,6 +40,10 @@ const productSchema = new mongoose.Schema({
       ref: "review",
     },
   ],
+  addedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "seller",
+  },
   createdAt: {
     type: Date,
     default: Date.now,
