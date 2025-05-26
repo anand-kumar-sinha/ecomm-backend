@@ -17,6 +17,7 @@ import addressRouter from "./routes/addressRouter.js";
 import reviewRouter from "./routes/reviewRouter.js";
 import notificationRouter from "./routes/notificationRouter.js";
 import sellerRouter from "./routes/sellerRouter.js";
+import companyRouter from "./routes/companyRouter.js";
 const app = express();
 
 const PORT = process.env.PORT || 4000;
@@ -48,6 +49,7 @@ app.use("/api/address", addressRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/notifications", notificationRouter);
 app.use("/api/seller", sellerRouter);
+app.use("/api/company", companyRouter);
 
 // Activate
 app.listen(PORT, () => {
