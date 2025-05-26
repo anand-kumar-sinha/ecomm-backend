@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import validator from "validator";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import notificationModel from "../models/notificationModel.js";
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
 };
@@ -282,6 +283,95 @@ const updateSellerProfile = async (req, res) => {
   }
 };
 
+const removeSingleNotificationSeller = async (req, res) => {
+  try {
+    const { notificationId } = req.body;
+    const sellerId = req.sellerId;
+
+    if (!sellerId || !notificationId) {
+      return res.status(400).json({
+        success: false,
+        message: `${!sellerId ? "sellerId" : "notificationId"} is required`,
+      });
+    }
+
+    const seller = await sellerModel.findById(sellerId).select("notifications");
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!seller.notifications.includes(notificationId)) {
+      return res.status(404).json({
+        success: false,
+        message: "Notification not found in user's notifications",
+      });
+    }
+
+    // Remove the notification from user's list
+    seller.notifications.pull(notificationId);
+    await seller.save();
+
+    // Then delete the notification from the notification collection
+    const deleted = await notificationModel.findByIdAndDelete(notificationId);
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Notification not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Notification removed successfully",
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const deleteAllNotificationsSeller = async (req, res) => {
+  try {
+    const sellerId = req.sellerId
+
+    if (!sellerId) {
+      return res.status(400).json({
+        success: false,
+        message: "userId is required",
+      });
+    }
+
+    const seller = await sellerModel.findById(sellerId).select("notifications");
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    await notificationModel.deleteMany({ _id: { $in: seller.notifications } });
+
+    seller.notifications = [];
+    await seller.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "All notifications deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export {
   signUpSeller,
   loginSeller,
@@ -289,5 +379,7 @@ export {
   fetchSellerOrder,
   fetchSellerNotification,
   fetchSeller,
-  updateSellerProfile
+  updateSellerProfile,
+  removeSingleNotificationSeller,
+  deleteAllNotificationsSeller
 };

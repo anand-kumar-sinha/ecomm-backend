@@ -1,9 +1,11 @@
 import {
+  deleteAllNotificationsSeller,
   fetchSeller,
   fetchSellerNotification,
   fetchSellerOrder,
   fetchSellerProduct,
   loginSeller,
+  removeSingleNotificationSeller,
   signUpSeller,
   updateSellerProfile,
 } from "../controllers/sellerController.js";
@@ -21,6 +23,16 @@ sellerRouter.get("/product/list", authSeller, fetchSellerProduct);
 sellerRouter.get("/orders/list", authSeller, fetchSellerOrder);
 sellerRouter.post("/order/status", authSeller, updateStatus);
 sellerRouter.post("/notifications", authSeller, fetchSellerNotification);
+sellerRouter.post(
+  "/notifications/delete",
+  authSeller,
+  removeSingleNotificationSeller
+);
+sellerRouter.post(
+  "/notifications/delete/all",
+  authSeller,
+  deleteAllNotificationsSeller
+);
 sellerRouter.get("/me", authSeller, fetchSeller);
 sellerRouter.post("/me/update", authSeller, updateSellerProfile);
 sellerRouter.post(
