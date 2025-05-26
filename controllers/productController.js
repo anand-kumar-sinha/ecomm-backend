@@ -48,7 +48,7 @@ const addProduct = async (req, res) => {
     };
 
     if(sellerId){
-      productData.addedBy = sellerId
+      productData.seller = sellerId
     }
 
     const product = new productModel(productData);

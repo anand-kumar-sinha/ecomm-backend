@@ -3,6 +3,7 @@ import userModel from "../models/userModel.js";
 import Stripe from "stripe";
 import razorpay from "razorpay";
 import { createNotification } from "../middleware/createNotification.js";
+import sellerModel from "../models/sellerModel.js";
 
 //global veriables
 const currency = "usd";
@@ -21,39 +22,54 @@ const placeOrder = async (req, res) => {
     const { items, amount, address } = req.body;
     const { userId } = req.body;
 
-    const orderData = {
-      user: userId,
-      items,
-      amount,
-      address,
-      paymentMethod: "COD",
-      payment: false,
-      date: Date.now(),
-    };
+    items.map(async (item) => {
+      const orderData = {
+        user: userId,
+        item,
+        amount,
+        address,
+        paymentMethod: "COD",
+        payment: false,
+        date: Date.now(),
+      };
 
-    const newOrder = new orderModel(orderData);
-    await newOrder.save();
+      const newOrder = new orderModel(orderData);
+      await newOrder.save();
 
-    if (!newOrder) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
+      if (!newOrder) {
+        return res.status(404).json({
+          success: false,
+          message: "Order not found",
+        });
+      }
+      if (item.sellerId) {
+        const seller = await sellerModel
+          .findById(item.sellerId)
+          .select("orders notifications");
+
+        await createNotification({
+          title: "New Order Recived",
+          body: "New order has been recived please proceed this order",
+          user: seller,
+          type: "Order Placed",
+        });
+        seller.orders.unshift(newOrder._id);
+        await seller.save();
+      }
+      const user = await userModel
+        .findById(userId)
+        .select("orders cartData notifications");
+
+      await createNotification({
+        title: "Order Placed",
+        body: "Your order has been placed",
+        user: user,
+        type: "Order Placed",
       });
-    }
-
-    const user = await userModel
-      .findById(userId)
-      .select("orders cartData notifications");
-
-    await createNotification({
-      title: "Order Placed",
-      body: "Your order has been placed",
-      user: user,
-      type: "Order Placed",
+      user.cartData = {};
+      user.orders.push(newOrder._id);
+      await user.save();
     });
-    user.cartData = {};
-    user.orders.push(newOrder._id);
-    await user.save();
 
     res.json({
       success: true,
@@ -286,7 +302,9 @@ const userOrders = async (req, res) => {
     const paginatedOrderIds = user.orders.slice(skip, skip + limit);
 
     // Fetch full order details
-    const orders = await orderModel.find({ _id: { $in: paginatedOrderIds } }).populate({path: "items.productId", select: "image"});
+    const orders = await orderModel
+      .find({ _id: { $in: paginatedOrderIds } })
+      .populate({ path: "item.productId", select: "image" });
 
     res.json({
       success: true,
@@ -294,7 +312,6 @@ const userOrders = async (req, res) => {
       currentPage: page,
       totalPages: Math.ceil(totalOrders / limit),
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -348,33 +365,33 @@ const updateStatus = async (req, res) => {
   }
 };
 
-const trackOrder = async (req, res) =>{
+const trackOrder = async (req, res) => {
   try {
     const { orderId } = req.body;
-    if(!orderId){
+    if (!orderId) {
       return res.status(400).json({
         success: false,
-        message: "Order ID is required"
-      })
+        message: "Order ID is required",
+      });
     }
     const order = await orderModel.findById(orderId);
-    if(!order){
+    if (!order) {
       return res.status(404).json({
         success: false,
-        message: "Order not found"
-      })
+        message: "Order not found",
+      });
     }
     res.json({
       success: true,
-      order
-    })
+      order,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
-    })
+      message: error.message,
+    });
   }
-}
+};
 
 export {
   verifyStripe,
@@ -385,5 +402,5 @@ export {
   allOrders,
   userOrders,
   updateStatus,
-  trackOrder
+  trackOrder,
 };

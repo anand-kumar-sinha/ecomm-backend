@@ -7,23 +7,22 @@ const orderSchema = new mongoose.Schema({
     required: true,
   },
 
-  items: [
-    {
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "product",
-        required: true,
-      },
-      size:{
-        type: String,
-        required: true
-      },
-      quantity: {
-        type: Number,
-        required: true,
-      },
+  item: {
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "product",
+      required: true,
     },
-  ],
+    size: {
+      type: String,
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+  },
+
   amount: {
     type: Number,
     required: true,
@@ -50,7 +49,6 @@ const orderSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
-
   date: {
     type: Number,
     required: true,

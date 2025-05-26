@@ -50,9 +50,11 @@ const signUpSeller = async (req, res) => {
         message: "Something went wrong",
       });
     }
+    const token = createToken(seller._id);
     res.json({
       success: true,
       seller,
+      token,
     });
   } catch (error) {
     console.log(error);
@@ -130,4 +132,31 @@ const fetchSellerProduct = async (req, res) => {
   }
 };
 
-export { signUpSeller, loginSeller, fetchSellerProduct };
+const fetchSellerOrder = async (req, res) => {
+  try {
+    const sellerId = req.sellerId;
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const seller = await sellerModel
+      .findById(sellerId)
+      .select("orders")
+      .populate("orders");
+
+    res.status(200).json({
+      success: true,
+      orders: seller.orders,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export { signUpSeller, loginSeller, fetchSellerProduct, fetchSellerOrder };

@@ -40,7 +40,7 @@ const productSchema = new mongoose.Schema({
       ref: "review",
     },
   ],
-  addedBy: {
+  seller: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "seller",
   },
