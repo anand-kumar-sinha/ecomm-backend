@@ -159,4 +159,69 @@ const fetchSellerOrder = async (req, res) => {
   }
 };
 
-export { signUpSeller, loginSeller, fetchSellerProduct, fetchSellerOrder };
+const fetchSeller = async (req, res) => {
+  try {
+    const sellerId = req.sellerId;
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const seller = await sellerModel.findById(sellerId).populate("orders notifications");
+    seller.password = undefined;
+
+    const sellerData ={
+      ...seller._doc,
+      recentNotification: seller.notifications.slice(0, 2),
+      recentOrders: seller.orders.slice(0, 2),
+      notifications: seller.notifications.length,
+      orders: seller.orders.length,
+    }
+    res.status(200).json({
+      success: true,
+      seller: sellerData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const fetchSellerNotification = async (req, res) => {
+  try {
+    const sellerId = req.sellerId;
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const seller = await sellerModel
+      .findById(sellerId)
+      .select("notifications")
+      .populate("notifications");
+    res.status(200).json({
+      success: true,
+      notifications: seller.notifications,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export {
+  signUpSeller,
+  loginSeller,
+  fetchSellerProduct,
+  fetchSellerOrder,
+  fetchSellerNotification,
+  fetchSeller
+};

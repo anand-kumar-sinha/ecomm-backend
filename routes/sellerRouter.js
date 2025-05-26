@@ -1,4 +1,11 @@
-import { fetchSellerOrder, fetchSellerProduct, loginSeller, signUpSeller } from "../controllers/sellerController.js";
+import {
+  fetchSeller,
+  fetchSellerNotification,
+  fetchSellerOrder,
+  fetchSellerProduct,
+  loginSeller,
+  signUpSeller,
+} from "../controllers/sellerController.js";
 import express from "express";
 import authSeller from "../middleware/sellerAuth.js";
 import { addProduct } from "../controllers/productController.js";
@@ -11,7 +18,9 @@ sellerRouter.post("/register", signUpSeller);
 sellerRouter.post("/login", loginSeller);
 sellerRouter.get("/product/list", authSeller, fetchSellerProduct);
 sellerRouter.get("/orders/list", authSeller, fetchSellerOrder);
-sellerRouter.post('/order/status', authSeller ,updateStatus)
+sellerRouter.post("/order/status", authSeller, updateStatus);
+sellerRouter.post("/notifications", authSeller, fetchSellerNotification);
+sellerRouter.get("/me", authSeller, fetchSeller);
 sellerRouter.post(
   "/product/add",
   authSeller,
