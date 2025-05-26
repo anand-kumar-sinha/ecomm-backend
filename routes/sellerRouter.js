@@ -5,6 +5,7 @@ import {
   fetchSellerProduct,
   loginSeller,
   signUpSeller,
+  updateSellerProfile,
 } from "../controllers/sellerController.js";
 import express from "express";
 import authSeller from "../middleware/sellerAuth.js";
@@ -21,6 +22,7 @@ sellerRouter.get("/orders/list", authSeller, fetchSellerOrder);
 sellerRouter.post("/order/status", authSeller, updateStatus);
 sellerRouter.post("/notifications", authSeller, fetchSellerNotification);
 sellerRouter.get("/me", authSeller, fetchSeller);
+sellerRouter.post("/me/update", authSeller, updateSellerProfile);
 sellerRouter.post(
   "/product/add",
   authSeller,

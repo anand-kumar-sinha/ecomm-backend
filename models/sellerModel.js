@@ -6,6 +6,22 @@ const sellerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    storeName: {
+      type: String,
+      required: true,
+    },
+    storeAddress: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    phone:{
+      type: String,
+      required: true, 
+    },
     email: {
       type: String,
       required: true,
@@ -15,17 +31,17 @@ const sellerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    role:{
+    role: {
       type: String,
-      default: "seller"
+      default: "seller",
     },
     totalSells: {
       type: Number,
       default: 0,
     },
-    totalEarning:{
+    totalEarning: {
       type: Number,
-      default: 0
+      default: 0,
     },
     products: [
       {
@@ -49,5 +65,6 @@ const sellerSchema = new mongoose.Schema(
   { minimize: false }
 );
 
-const sellerModel = mongoose.models.seller || mongoose.model("seller", sellerSchema);
+const sellerModel =
+  mongoose.models.seller || mongoose.model("seller", sellerSchema);
 export default sellerModel;

@@ -169,16 +169,18 @@ const fetchSeller = async (req, res) => {
       });
     }
 
-    const seller = await sellerModel.findById(sellerId).populate("orders notifications");
+    const seller = await sellerModel
+      .findById(sellerId)
+      .populate("orders notifications");
     seller.password = undefined;
 
-    const sellerData ={
+    const sellerData = {
       ...seller._doc,
       recentNotification: seller.notifications.slice(0, 2),
       recentOrders: seller.orders.slice(0, 2),
       notifications: seller.notifications.length,
       orders: seller.orders.length,
-    }
+    };
     res.status(200).json({
       success: true,
       seller: sellerData,
@@ -217,11 +219,75 @@ const fetchSellerNotification = async (req, res) => {
   }
 };
 
+const updateSellerProfile = async (req, res) => {
+  try {
+    const sellerId = req.sellerId;
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const { storeName, storeAddress, description, name, email, phone } =
+      req.body;
+
+    // Basic validation
+    if (!storeName || !name || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Store name, name, and email are required fields",
+      });
+    }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid email address"
+      });
+    }
+
+    // Find and update the seller
+    const updatedSeller = await sellerModel.findByIdAndUpdate(
+      sellerId,
+      {
+        storeName,
+        storeAddress,
+        description,
+        name,
+        email,
+        phone
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedSeller) {
+      return res.status(404).json({
+        success: false,
+        message: "Seller not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Seller profile updated successfully",
+      seller: updatedSeller
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export {
   signUpSeller,
   loginSeller,
   fetchSellerProduct,
   fetchSellerOrder,
   fetchSellerNotification,
-  fetchSeller
+  fetchSeller,
+  updateSellerProfile
 };
